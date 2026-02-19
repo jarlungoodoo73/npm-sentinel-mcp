@@ -31,12 +31,6 @@ jobs:
                   node-version: ${{matrix.node-version}}
                   cache: 'npm'
             - run: npm ci
-            - name: Handle optional dependencies
-              run: |
-                # Force reinstall to handle optional dependencies properly
-                npm ci --no-optional
-                # Install optional dependencies separately if needed
-                npm install --optional
             - name: Lint
               run: npm run lint --if-present
             - name: Test
@@ -78,13 +72,6 @@ jobs:
                   GH_TOKEN: ${{secrets.GH_TOKEN}}
                   NPM_CONFIG_PROVENANCE: true
                   
-            - name: Publish to NPM (Token)
-              run: npm publish --provenance --access public
-              env:
-                NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-                  
-
-                  
             # Get the new version from package.json after semantic-release
             - name: Get new version
               id: get_version
@@ -92,9 +79,9 @@ jobs:
                 NEW_VERSION=$(node -p "require('./package.json').version")
                 echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
                 echo "📦 New version: $NEW_VERSION"
-                
-            # Update server.json version and SHA256 (like the example workflow)
-            - name: Update server.json version and SHA256
+
+            # Update server.json version before publishing
+            - name: Update server.json version
               run: |
                 VERSION=$(node -p "require('./package.json').version")
                 echo "📦 Updating server.json with version: $VERSION"
@@ -106,7 +93,7 @@ jobs:
                 echo "✅ server.json updated successfully"
                 echo "📋 Final server.json version:"
                 cat server.json | jq '.version, .packages[0].version'
-            
+
             # Build STDIO version for npm package (excludes Smithery artifacts)
             - name: Build STDIO version for npm package
               run: |
@@ -124,6 +111,11 @@ jobs:
                 ls -la .smithery/ 2>/dev/null || echo "Smithery artifacts removed successfully"
                 echo "=== Version in compiled code ==="
                 grep -n "version:" dist/index.js | head -1
+
+            - name: Publish to NPM (Token)
+              run: npm publish --provenance --access public
+              env:
+                NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
                   
             # Install MCP Publisher for registry publishing
             - name: Install MCP Publisher
