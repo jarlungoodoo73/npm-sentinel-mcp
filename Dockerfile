@@ -27,7 +27,7 @@ RUN npm run build:stdio && npm run build:http
 FROM node:lts-alpine AS production
 LABEL maintainer="Nekzus <nekzus.dev@gmail.com>"
 LABEL description="NPM Sentinel MCP Server for package analysis"
-LABEL version="1.7.8"
+LABEL version="1.16.2"
 WORKDIR /app
 
 # Copy only the necessary artifacts from the build
