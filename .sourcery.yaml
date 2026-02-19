@@ -1,0 +1,17 @@
+rule_settings:
+  enable: [default]
+  rule_types:
+    - refactoring
+    - suggestion
+    - comment
+
+github:
+  ignore_labels:
+    - sourcery-ignore
+  request_review: author
+  sourcery_branch: sourcery/{base_branch}
+
+ignore:
+  - node_modules
+  - dist
+  - .smithery
